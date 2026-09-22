@@ -1,4 +1,15 @@
 """
+Week 2 — Tool-calling agent loop (kept as-is for reference/progression).
+Note: Week 3 onward refactors this loop into agent_core.py for reuse
+across the CLI and eval harness — see src/agent_core.py.
+"""
+
+
+
+
+
+
+"""
 Week 2 — Tool-calling agent loop.
 
 Pattern:
