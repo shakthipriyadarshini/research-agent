@@ -1,11 +1,6 @@
-venv/
+.venv/
 __pycache__/
 *.pyc
 .env
 .DS_Store
-
-echo "venv/
-__pycache__/
-*.pyc
-.env
-agent_files/" > .gitignore
+agent_files/

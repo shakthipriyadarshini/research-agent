@@ -1,1 +1,0 @@
-Ollama was founded in 2023 by Jeffrey Morgan and Michael Chiang.
