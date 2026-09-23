@@ -1,24 +1,15 @@
 """
-Week 2 — Tool definitions.
-
-Each tool has two parts:
-1. A JSON schema (tells the model what the tool does and what arguments it takes)
-2. A Python function that actually executes it
-
-The model never runs code itself — it just outputs "I want to call calculator
-with expression='2+2'", and OUR code executes that and feeds the result back.
+Tool definitions: JSON schemas (what the model sees) + Python implementations
+(what actually executes).
 """
 
 import ast
 import operator
+import os
 
 from ddgs import DDGS
 
-
 # ---------- Tool 1: Calculator ----------
-# Using ast.literal_eval-style safe evaluation instead of eval() — never eval()
-# raw model output directly, even for "just math". Models can be tricked into
-# producing malicious expressions.
 
 _ALLOWED_OPERATORS = {
     ast.Add: operator.add,
@@ -57,10 +48,6 @@ def calculator(expression: str) -> str:
 
 
 # ---------- Tool 2: Read a local file ----------
-# Restricted to a specific folder so the model can't be tricked into reading
-# arbitrary files on your system (e.g. via prompt injection from a search result).
-
-import os
 
 READABLE_DIR = os.path.abspath("./agent_files")
 os.makedirs(READABLE_DIR, exist_ok=True)
@@ -76,7 +63,7 @@ def read_file(filename: str) -> str:
     try:
         with open(target, "r", encoding="utf-8", errors="replace") as f:
             content = f.read()
-        return content[:3000]  # cap to keep context manageable
+        return content[:3000]
     except Exception as e:
         return f"Error reading file: {e}"
 
@@ -111,8 +98,6 @@ def web_search(query: str, max_results: int = 3) -> str:
 
 
 # ---------- Tool registry ----------
-# This is what gets sent to the model so it knows what tools exist and how to call them.
-# Format follows Ollama's tool-calling schema (same shape as OpenAI's function-calling).
 
 TOOL_SCHEMAS = [
     {
@@ -123,10 +108,7 @@ TOOL_SCHEMAS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "expression": {
-                        "type": "string",
-                        "description": "The math expression to evaluate, e.g. '12 * (3 + 4)'",
-                    }
+                    "expression": {"type": "string", "description": "Math expression, e.g. '12 * (3 + 4)'"}
                 },
                 "required": ["expression"],
             },
@@ -140,10 +122,7 @@ TOOL_SCHEMAS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "filename": {
-                        "type": "string",
-                        "description": "Name of the file to read, e.g. 'notes.txt'",
-                    }
+                    "filename": {"type": "string", "description": "Name of the file to read, e.g. 'notes.txt'"}
                 },
                 "required": ["filename"],
             },
@@ -157,14 +136,8 @@ TOOL_SCHEMAS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "filename": {
-                        "type": "string",
-                        "description": "Name of the file to write, e.g. 'summary.md'",
-                    },
-                    "content": {
-                        "type": "string",
-                        "description": "The text content to write to the file",
-                    },
+                    "filename": {"type": "string", "description": "Name of the file to write, e.g. 'summary.md'"},
+                    "content": {"type": "string", "description": "The text content to write to the file"},
                 },
                 "required": ["filename", "content"],
             },
@@ -177,19 +150,13 @@ TOOL_SCHEMAS = [
             "description": "Search the web for current information and return short result snippets.",
             "parameters": {
                 "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "The search query.",
-                    }
-                },
+                "properties": {"query": {"type": "string", "description": "The search query."}},
                 "required": ["query"],
             },
         },
     },
 ]
 
-# Maps tool name -> actual Python function, used to execute whatever the model requests
 TOOL_FUNCTIONS = {
     "calculator": calculator,
     "read_file": read_file,

@@ -56,3 +56,16 @@ research-agent/
 │   └── (later weeks add here: tools.py, agent.py, evals.py)
 └── evals/                 # (Week 4) task set + results
 ```
+## Known Limitations (found via automated evals)
+
+- **File-write compliance after verbal answers (~0% pass rate on `grounded_search_and_write`)**:
+  when a task requires both answering a question AND saving output to a file,
+  llama3.2:3b reliably answers correctly but often skips the actual write_file
+  call — sometimes writing pseudo-code text instead of invoking the tool.
+  Tried: explicit compliance instructions, narrowed trigger conditions, and a
+  code-level pseudo-call detector with bounded retries. None fully closed the
+  gap. Likely requires a larger model or stricter structured-output mode.
+- **Eval suite**: 13/16 runs passed across 8 test cases (2 runs/case), using
+  rule-based checks derived from real failures found during development.
+  See `evals/README.md` for methodology and `evals/results/latest_report.md`
+  for the latest scored run.
